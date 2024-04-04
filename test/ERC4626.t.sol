@@ -30,7 +30,8 @@ contract ERC4626Test is Test, KontrolCheats {
     // totalAssets MUST NOT revert
     function test_totalAssets_doesNotRevert(address caller) public {
         _notBuiltinAddress(caller);
-        vm.prank(caller); vault.totalAssets();
+        vm.prank(caller);
+        vault.totalAssets();
     }
 
     // totalAssets MUST revert when paused
@@ -39,7 +40,7 @@ contract ERC4626Test is Test, KontrolCheats {
 
         vault.pause();
 
-        vm.startPrank(caller); 
+        vm.startPrank(caller);
 
         vm.expectRevert();
         vault.totalAssets();
@@ -56,7 +57,7 @@ contract ERC4626Test is Test, KontrolCheats {
         vault.approve(to, amount);
     }
 
-    function test_assume_noOverflow(uint x, uint y) public {
+    function test_assume_noOverflow(uint256 x, uint256 y) public {
         vm.assume(x <= x + y);
         assert(true);
     }
@@ -66,5 +67,23 @@ contract ERC4626Test is Test, KontrolCheats {
         uint256 y = kevm.freshUInt(32);
         vm.assume(x <= x + y);
         assert(true);
+    }
+
+    function test_asset(address caller) public {
+        _notBuiltinAddress(caller);
+
+        vm.prank(caller);
+        vault.asset();
+    }
+
+    function test_decimals(address caller) public {
+        _notBuiltinAddress(caller);
+
+        vm.prank(caller);
+        assert(asset.decimals() <= vault.decimals());
+
+        // uint256 assetDecimals = asset.decimals()
+        // uint256 assetVault = vault.decimals()
+        // assert(assetDecimals, assetVault)
     }
 }
