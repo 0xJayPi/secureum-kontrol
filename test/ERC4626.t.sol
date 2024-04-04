@@ -79,11 +79,7 @@ contract ERC4626Test is Test, KontrolCheats {
     function test_decimals(address caller) public {
         _notBuiltinAddress(caller);
 
-        vm.prank(caller);
+        vm.startPrank(caller);
         assert(asset.decimals() <= vault.decimals());
-
-        // uint256 assetDecimals = asset.decimals()
-        // uint256 assetVault = vault.decimals()
-        // assert(assetDecimals, assetVault)
     }
 }
