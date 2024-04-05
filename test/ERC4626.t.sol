@@ -94,7 +94,7 @@ contract ERC4626Test is Test, KontrolCheats {
 
         vault.pause();
 
-        vm.prank(from);
+        vm.startPrank(from);
         vm.expectRevert(bytes4(keccak256("EnforcedPause()")));
         vault.convertToShares(amount);
     }
@@ -127,10 +127,10 @@ contract ERC4626Test is Test, KontrolCheats {
         uint256 fromPostBalance = vault.balanceOf(from);
         uint256 toPostBalance = vault.balanceOf(to);
 
-        vm.assume(fromPostBalance >= fromPrevBalance - amount);
-        vm.assume(toPostBalance <= toPrevBalance + amount);
-        assert(fromPostBalance == fromPrevBalance - amount);
-        assert(toPostBalance == toPrevBalance + amount);
+        unchecked {
+            assert(fromPostBalance == fromPrevBalance - amount);
+            assert(toPostBalance == toPrevBalance + amount);
+        }
     }
     // make `from`, `to`,  and `amount` symbolic - DONE
     // assume `from` and `to` aren’t built-in addresses - DONE
