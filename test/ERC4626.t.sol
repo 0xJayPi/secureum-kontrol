@@ -85,8 +85,9 @@ contract ERC4626Test is Test, KontrolCheats {
 
     // Fuzzing OK
     // @todo Symbolic
-    function test_convertToShares_reverts(address from, uint128 amount) public {
+    function test_convertToShares_reverts(address from) public {
         _notBuiltinAddress(from);
+        uint256 amount = kevm.freshUInt(32);
 
         ERC20Mock(address(asset)).mint(address(this), 1);
         asset.approve(address(vault), 1);
@@ -107,11 +108,11 @@ contract ERC4626Test is Test, KontrolCheats {
     // check that `convertToShares` always reverts - DONE
 
     // @todo in the assignment, it mentions storage mapping manipulation, review the recording
-    function test_transfer(address from, address to, uint256 amount) public {
+    function test_transfer(address from, address to) public {
         _notBuiltinAddress(from);
         _notBuiltinAddress(to);
         vm.assume(from != to);
-        // vm.assume(amount > 1 ether);
+        uint256 amount = kevm.freshUInt(32);
 
         ERC20Mock(address(asset)).mint(from, amount);
 
@@ -127,6 +128,8 @@ contract ERC4626Test is Test, KontrolCheats {
         uint256 fromPostBalance = vault.balanceOf(from);
         uint256 toPostBalance = vault.balanceOf(to);
 
+        vm.assume(fromPrevBalance >= fromPrevBalance - amount);
+        vm.assume(toPrevBalance <= toPrevBalance + amount);
         unchecked {
             assert(fromPostBalance == fromPrevBalance - amount);
             assert(toPostBalance == toPrevBalance + amount);
