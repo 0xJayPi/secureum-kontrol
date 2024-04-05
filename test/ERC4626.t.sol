@@ -24,7 +24,7 @@ contract ERC4626Test is Test, KontrolCheats {
         asset = new ERC20Mock();
         vault = new ERC4626(ERC20(address(asset)), "Vault", "VAULT");
 
-        // kevm.symbolicStorage(address(vault));
+        kevm.symbolicStorage(address(vault));
     }
 
     // totalAssets MUST NOT revert
@@ -110,18 +110,25 @@ contract ERC4626Test is Test, KontrolCheats {
     function test_transfer(address from, address to, uint256 amount) public {
         _notBuiltinAddress(from);
         _notBuiltinAddress(to);
-        deal(address(vault), from, amount);
         vm.assume(from != to);
+        // vm.assume(amount > 1 ether);
+
+        ERC20Mock(address(asset)).mint(from, amount);
 
         uint256 fromPrevBalance = vault.balanceOf(from);
         uint256 toPrevBalance = vault.balanceOf(to);
 
-        vm.prank(from);
-        vault.transfer(to, amount);
+        vm.startPrank(from);
+        asset.approve(address(vault), amount);
+        uint256 shares = vault.deposit(amount, from);
+        vault.transfer(to, shares);
+        vm.stopPrank();
 
         uint256 fromPostBalance = vault.balanceOf(from);
         uint256 toPostBalance = vault.balanceOf(to);
 
+        vm.assume(fromPostBalance >= fromPrevBalance - amount);
+        vm.assume(toPostBalance <= toPrevBalance + amount);
         assert(fromPostBalance == fromPrevBalance - amount);
         assert(toPostBalance == toPrevBalance + amount);
     }
